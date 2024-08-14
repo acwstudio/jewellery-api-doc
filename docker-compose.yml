@@ -1,0 +1,14 @@
+services:
+  open-api:
+    image: redocly/redoc
+    container_name: redocly
+    ports:
+      - 8085:80
+    volumes:
+      - ./documentation:/usr/share/nginx/html/documentation
+    environment:
+      SPEC_URL: documentation/jewellery-api.yaml
+      REDOC_OPTIONS: >-
+        hide-download-button=false
+        disable-search=false
+        default-sample-language='php'
