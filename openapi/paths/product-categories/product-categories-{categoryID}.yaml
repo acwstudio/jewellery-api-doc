@@ -1,0 +1,146 @@
+get:
+  tags:
+    - ProductCategory
+  summary: Category by id
+  description: "This operation lets you list categories."
+  operationId: getProductCategoryById
+  parameters:
+    - name: categoryID
+      in: path
+      description: "the id of the category"
+      required: true
+      schema: 
+        type: integer
+    - name: include
+      in: query
+      description: "One or more values by which include relationships."
+      required: false
+      schema:
+        type: array
+        uniqueItems: true
+        minItems: 1
+        maxItems: 3
+        items:
+          type: string
+          enum:
+            - id
+            - name
+            - slug      
+    - name: fields
+      in: query
+      description: "One or more values by which to show fields."
+      required: false
+      schema:
+        type: array
+        uniqueItems: true
+        minItems: 1
+        maxItems: 3
+        items:
+          type: string
+          enum:
+            - id
+            - name
+            - slug     
+  responses:
+    '200':
+      description: Successful response example
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../components/schemas/User.yaml'
+        application/xml:
+          schema:
+            type: array
+            items:
+              $ref: '../../components/schemas/User.yaml'
+        text/plain:
+          examples:
+            response:
+              value: Success!
+    '400':
+      description: Invalid status value was provided in the request
+  security:
+    - main_auth:
+        - 'read:users'
+        - 'write:users'
+put:
+  tags:
+    - ProductCategory
+  summary: Update product category
+  description: "This operation allows users to update the information in their own profile. The update can only be performed by the logged in user."
+  operationId: updatProductCategory
+  parameters:
+    - name: categoryID
+      in: path
+      description: "The name of the user profile to be **updated**."
+      required: true
+      schema:
+        type: string
+  security:
+    - main_auth:
+        - 'write:users'
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schemas/User.yaml'
+      application/xml:
+        schema:
+          $ref: '../../components/schemas/User.yaml'
+    description: Updated user object
+    required: true
+  responses:
+    '200':
+      description: Successfully updated the user profile
+      content:
+        application/json:
+          example:
+            status: 200
+            message: OK
+    '400':
+      description: Invalid username supplied
+      $ref: ../../components/responses/Problem.yaml
+    '404':
+      description: User not found
+      $ref: ../../components/responses/Problem.yaml
+    '405':
+      description: Method not allowed
+      content:
+        application/json:
+          example:
+            status: 405
+            message: Not allowed
+delete:
+  tags:
+    - ProductCategory
+  summary: Delete a product category
+  description: "This operation deletes all data associated with the requested `username`. Only administrators can perform this operation."
+  operationId: deleteProductCategory
+  parameters:
+    # - name: api_key
+    #   in: header
+    #   required: false
+    #   schema:
+    #     type: string
+    #     example: 'Bearer <TOKEN>'
+    - name: categoryID
+      in: path
+      description: "The name of the user profile to be **deleted**."
+      example: John78
+      required: true
+      schema:
+        type: string
+  responses:
+    '200':
+      description: Successfully deleted a user
+    '400':
+      description: Invalid username provided
+    '404':
+      description: User not found
+  security:
+    - main_auth:
+        - 'read:users'
+        - 'write:users'
+    - api_key: []

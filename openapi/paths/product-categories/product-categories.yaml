@@ -1,0 +1,138 @@
+get:
+  tags:
+    - ProductCategory
+  summary: List categories
+  description: "This operation lets you list categories."
+  operationId: categories
+  parameters: 
+    - name: sort
+      in: query
+      description: "One or more values by which to order categories."
+      required: false
+      schema:
+        type: array
+        uniqueItems: true
+        minItems: 1
+        maxItems: 3
+        items:
+          type: string
+          enum:
+            - id
+            - name
+            - slug      
+    - name: fields
+      in: query
+      description: "One or more values by which to show fields."
+      required: false
+      schema:
+        type: array
+        uniqueItems: true
+        minItems: 1
+        maxItems: 3
+        items:
+          type: string
+          enum:
+            - id
+            - name
+            - slug
+    - name: include     
+      in: query
+      description: ""
+      required: false
+      schema: 
+        type: array
+        uniqueItems: true
+        minItems: 1
+        maxItems: 3
+        items: 
+          type: string
+          enum:
+            - products
+            - parent
+            - child
+    - name: filter
+      in: query
+      description: ""
+      required: false
+      style: deepObject
+      explode: true
+      example: 
+        id: 22
+        name: "Кольца"
+        slug: "Kolca"
+        active: true
+      schema: 
+        type: object
+        properties: 
+          id: 
+            description: "product category ID"
+            type: integer
+          name:
+            description: "product category name"
+            type: string
+          slug:
+            description: "product category slug"
+            type: string
+          active:
+            description: "product category active/inactive"
+            type: boolean
+  responses:
+    '200':
+      description: Successful response example
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../components/schemas/User.yaml'
+        application/xml:
+          schema:
+            type: array
+            items:
+              $ref: '../../components/schemas/User.yaml'
+        text/plain:
+          examples:
+            response:
+              value: Success!
+    '400':
+      description: Invalid status value was provided in the request
+  security:
+    - main_auth:
+        - 'read:users'
+        - 'write:users'
+post:
+  tags:
+    - ProductCategory
+  summary: Create a new category
+  description: "This operation creates a new category."
+  operationId: createProductCategory
+  responses:
+    '200':
+      description: Successfully created a user
+    '405':
+      description: Invalid input
+  security:
+    - main_auth:
+        - 'read:users'
+        - 'write:users'
+  requestBody:
+    content:
+        application/json:
+          schema:
+            discriminator:
+              propertyName: userType
+              mapping:
+                admin: '../../components/schemas/Admin.yaml'
+                basic: '../../components/schemas/Basic.yaml'
+            anyOf:
+              - $ref: '../../components/schemas/Admin.yaml'
+              - $ref: '../../components/schemas/Basic.yaml'
+        application/xml:
+          schema:
+            type: object
+            properties:
+                name: 
+                  type: string
+                  description: Example description
+    description: "User profile to be added to the database."
+    required: true

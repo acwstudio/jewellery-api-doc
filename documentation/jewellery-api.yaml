@@ -21,11 +21,7 @@ info:
     # OpenAPI Specification
     The goal of The OpenAPI Specification is to define a standard, language-agnostic interface to REST APIs which allows both humans and computers to discover and understand the capabilities of the service without access to source code, documentation, or through network traffic inspection. When properly defined via OpenAPI, a consumer can  understand and interact with the remote service with a minimal amount of implementation logic. Similar to what interfaces have done for lower-level programming, OpenAPI removes the guesswork in calling the service.
 servers:
-  - url: https://{tenant}/api/v1
-    variables:
-      tenant:
-        default: www
-        description: Your tenant id
+  - url: http://82.146.33.26:8011/api_v2/admin
   - url: https://example.com/api/v1
 tags:
   - name: Echo
@@ -38,6 +34,8 @@ tags:
     description: Example operations for retrieving information.
   - name: Tag
     description: This is a tag description.
+  - name: Category
+    description: Example actions on categories.
 externalDocs:
   description: Find out how to create a GitHub repo for your OpenAPI definition.
   url: https://github.com/Redocly/create-openapi-repo
@@ -440,6 +438,286 @@ paths:
             } catch (UnprocessableEntityException $e) {
                 var_dump($e->getErrors());
             }
+  /product-categories:
+    get:
+      tags:
+        - ProductCategory
+      summary: List categories
+      description: This operation lets you list categories.
+      operationId: categories
+      parameters:
+        - name: sort
+          in: query
+          description: One or more values by which to order categories.
+          required: false
+          schema:
+            type: array
+            uniqueItems: true
+            minItems: 1
+            maxItems: 3
+            items:
+              type: string
+              enum:
+                - id
+                - name
+                - slug
+        - name: fields
+          in: query
+          description: One or more values by which to show fields.
+          required: false
+          schema:
+            type: array
+            uniqueItems: true
+            minItems: 1
+            maxItems: 3
+            items:
+              type: string
+              enum:
+                - id
+                - name
+                - slug
+        - name: include
+          in: query
+          description: ''
+          required: false
+          schema:
+            type: array
+            uniqueItems: true
+            minItems: 1
+            maxItems: 3
+            items:
+              type: string
+              enum:
+                - products
+                - parent
+                - child
+        - name: filter
+          in: query
+          description: ''
+          required: false
+          style: deepObject
+          explode: true
+          example:
+            id: 22
+            name: Кольца
+            slug: Kolca
+            active: true
+          schema:
+            type: object
+            properties:
+              id:
+                description: product category ID
+                type: integer
+              name:
+                description: product category name
+                type: string
+              slug:
+                description: product category slug
+                type: string
+              active:
+                description: product category active/inactive
+                type: boolean
+      responses:
+        '200':
+          description: Successful response example
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+            text/plain:
+              examples:
+                response:
+                  value: Success!
+        '400':
+          description: Invalid status value was provided in the request
+      security:
+        - main_auth:
+            - read:users
+            - write:users
+    post:
+      tags:
+        - ProductCategory
+      summary: Create a new category
+      description: This operation creates a new category.
+      operationId: createProductCategory
+      responses:
+        '200':
+          description: Successfully created a user
+        '405':
+          description: Invalid input
+      security:
+        - main_auth:
+            - read:users
+            - write:users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              discriminator:
+                propertyName: userType
+                mapping:
+                  admin: '#/components/schemas/Admin'
+                  basic: '#/components/schemas/Basic'
+              anyOf:
+                - $ref: '#/components/schemas/Admin'
+                - $ref: '#/components/schemas/Basic'
+          application/xml:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Example description
+        description: User profile to be added to the database.
+        required: true
+  /product-categories/{categoryID}:
+    get:
+      tags:
+        - ProductCategory
+      summary: Category by id
+      description: This operation lets you list categories.
+      operationId: getProductCategoryById
+      parameters:
+        - name: categoryID
+          in: path
+          description: the id of the category
+          required: true
+          schema:
+            type: integer
+        - name: include
+          in: query
+          description: One or more values by which include relationships.
+          required: false
+          schema:
+            type: array
+            uniqueItems: true
+            minItems: 1
+            maxItems: 3
+            items:
+              type: string
+              enum:
+                - id
+                - name
+                - slug
+        - name: fields
+          in: query
+          description: One or more values by which to show fields.
+          required: false
+          schema:
+            type: array
+            uniqueItems: true
+            minItems: 1
+            maxItems: 3
+            items:
+              type: string
+              enum:
+                - id
+                - name
+                - slug
+      responses:
+        '200':
+          description: Successful response example
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+            text/plain:
+              examples:
+                response:
+                  value: Success!
+        '400':
+          description: Invalid status value was provided in the request
+      security:
+        - main_auth:
+            - read:users
+            - write:users
+    put:
+      tags:
+        - ProductCategory
+      summary: Update product category
+      description: This operation allows users to update the information in their own profile. The update can only be performed by the logged in user.
+      operationId: updatProductCategory
+      parameters:
+        - name: categoryID
+          in: path
+          description: The name of the user profile to be **updated**.
+          required: true
+          schema:
+            type: string
+      security:
+        - main_auth:
+            - write:users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/User'
+        description: Updated user object
+        required: true
+      responses:
+        '200':
+          description: Successfully updated the user profile
+          content:
+            application/json:
+              example:
+                status: 200
+                message: OK
+        '400':
+          description: Invalid username supplied
+          $ref: '#/components/responses/Problem'
+        '404':
+          description: User not found
+          $ref: '#/components/responses/Problem'
+        '405':
+          description: Method not allowed
+          content:
+            application/json:
+              example:
+                status: 405
+                message: Not allowed
+    delete:
+      tags:
+        - ProductCategory
+      summary: Delete a product category
+      description: This operation deletes all data associated with the requested `username`. Only administrators can perform this operation.
+      operationId: deleteProductCategory
+      parameters:
+        - name: categoryID
+          in: path
+          description: The name of the user profile to be **deleted**.
+          example: John78
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully deleted a user
+        '400':
+          description: Invalid username provided
+        '404':
+          description: User not found
+      security:
+        - main_auth:
+            - read:users
+            - write:users
+        - api_key: []
 webhooks:
   userInfo:
     post:
@@ -832,3 +1110,6 @@ x-tagGroups:
   - name: Administration
     tags:
       - Admin
+  - name: AdminPanel
+    tags:
+      - ProductCategory

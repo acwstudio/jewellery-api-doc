@@ -54,6 +54,8 @@ tags:
     description: "Example operations for retrieving information."
   - name: Tag
     description: "This is a tag description."
+  - name: Category
+    description: "Example actions on categories."
 x-tagGroups:
   - name: General
     tags:
@@ -63,12 +65,15 @@ x-tagGroups:
   - name: Administration
     tags:
       - Admin
+  - name: AdminPanel
+    tags:
+      - ProductCategory
 servers:
-  - url: https://{tenant}/api/v1
-    variables:
-      tenant:
-        default: www
-        description: Your tenant id
+  - url: http://82.146.33.26:8011/api_v2/admin
+    # variables:
+    #   tenant:
+    #     default: www
+    #     description: Your tenant id
   - url: https://example.com/api/v1
 paths:
   '/users/{username}':
@@ -83,6 +88,10 @@ paths:
     $ref: paths/pathItemWithExamples.yaml
   '/echo':
     $ref: 'paths/echo.yaml'
+  '/product-categories':
+    $ref: paths/product-categories/product-categories.yaml
+  '/product-categories/{categoryID}':
+    $ref: paths/product-categories/product-categories-{categoryID}.yaml
 components:
   securitySchemes:
     main_auth:
